@@ -51,22 +51,21 @@ class ChiSquareGoodnessOfFit(CountTest):
             )
 
     @override
+    def _require_compatible(self, counts: IntArray) -> None:
+        if self.expected_proportions is not None and len(self.expected_proportions) != counts.size:
+            raise ValueError(
+                f"counts has {counts.size} categories, but expected_proportions has {len(self.expected_proportions)}"
+            )
+
+    @override
     def _compute(self, counts: IntArray) -> HypothesisTestResult:
         proportions: FloatArray = (
             np.full(counts.size, 1 / counts.size)
             if self.expected_proportions is None
-            else self._matching_proportions(counts.size)
+            else np.array(self.expected_proportions, dtype=np.float64)
         )
         expected: FloatArray = proportions / np.sum(proportions) * np.sum(counts)
         return HypothesisTestResult.from_outcome(
             stats.power_divergence(counts, expected, lambda_=self.statistic.option_name),
             degrees_of_freedom=(counts.size - 1,),
         )
-
-    def _matching_proportions(self, num_categories: int) -> FloatArray:
-        proportions: FloatArray = np.array(self.expected_proportions, dtype=np.float64)
-        if proportions.size != num_categories:
-            raise ValueError(
-                f"counts has {num_categories} categories, but expected_proportions has {proportions.size}"
-            )
-        return proportions

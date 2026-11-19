@@ -7,6 +7,9 @@ from .confidence_interval import ConfidenceInterval
 from .parameter_validator import ParameterValidator
 from .significance_outcome import SignificanceOutcome
 
+# Backing tests can round a p-value of 1 up past it by a few units in the last place.
+_P_VALUE_ROUNDING_TOLERANCE: float = 1e-9
+
 
 @dataclass(frozen=True)
 class HypothesisTestResult:
@@ -32,6 +35,11 @@ class HypothesisTestResult:
     confidence_interval : ConfidenceInterval | None
         The confidence interval of the tested parameter; None when the test does not
         provide one.
+
+    Raises
+    ------
+    ValueError
+        If the p-value is outside [0, 1].
     """
 
     statistic: float | None
@@ -49,13 +57,12 @@ class HypothesisTestResult:
             object.__setattr__(self, "p_value", None)
             object.__setattr__(self, "degrees_of_freedom", ())
             object.__setattr__(self, "confidence_interval", None)
+        elif self.p_value is not None and math.isnan(self.p_value):
+            object.__setattr__(self, "p_value", None)
         elif self.p_value is not None:
-            # Backing tests can round a p-value of 1 up past it.
-            object.__setattr__(
-                self,
-                "p_value",
-                None if math.isnan(self.p_value) else min(self.p_value, 1.0),
-            )
+            if not 0 <= self.p_value <= 1 + _P_VALUE_ROUNDING_TOLERANCE:
+                raise ValueError(f"p_value must be in [0, 1], got {self.p_value!r}")
+            object.__setattr__(self, "p_value", min(self.p_value, 1.0))
 
     @classmethod
     def from_outcome(

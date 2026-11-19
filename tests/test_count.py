@@ -50,6 +50,9 @@ def test_goodness_of_fit_rejects_invalid_proportions() -> None:
         ChiSquareGoodnessOfFit(expected_proportions=(0.6, -0.1, 0.5))
     with pytest.raises(ValueError, match="3 categories"):
         ChiSquareGoodnessOfFit(expected_proportions=(0.5, 0.5)).run(OBSERVED)
+    with pytest.raises(ValueError, match="3 categories"):
+        # Mismatched options are an error even for frequencies the test is undefined for.
+        ChiSquareGoodnessOfFit(expected_proportions=(0.5, 0.5)).run([0, 0, 0])
 
 
 def test_independence_matches_the_pearson_formula() -> None:
@@ -171,6 +174,8 @@ def test_count_tests_reject_other_shapes(test: CountTest, counts: ArrayLike) -> 
         ([3, -1], ValueError, "negative"),
         ([3, 1.5], ValueError, "integer"),
         ([3, math.nan], ValueError, "finite"),
+        ([3, 2.0**63], ValueError, "less than"),
+        ([3, 1e19], ValueError, "less than"),
         (["3", "1"], TypeError, "numeric"),
     ],
 )

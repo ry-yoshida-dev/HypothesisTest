@@ -67,7 +67,8 @@ class DataValidator:
         TypeError
             If the frequencies are not numeric; booleans are rejected.
         ValueError
-            If a frequency is negative, not finite, or not an integer.
+            If a frequency is negative, not finite, not an integer, or too large for a
+            64-bit integer.
         """
         array: NDArray[np.generic] = np.asarray(values)
         if array.dtype.kind not in "iuf":
@@ -79,4 +80,7 @@ class DataValidator:
             raise ValueError(f"{name} must not be negative")
         if np.any(counts != np.round(counts)):
             raise ValueError(f"{name} must contain integer counts")
+        # 2**63 is the smallest float that int64 cannot hold.
+        if np.any(counts >= 2.0**63):
+            raise ValueError(f"{name} must be less than 2**63")
         return counts.astype(np.int64)

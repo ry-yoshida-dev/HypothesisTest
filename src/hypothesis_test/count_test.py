@@ -46,8 +46,9 @@ class CountTest(ABC):
         TypeError
             If the frequencies are not numeric.
         ValueError
-            If the frequencies do not have `shape`, or a frequency is negative, not
-            finite, or not an integer.
+            If the frequencies do not have `shape` or do not match the test's options,
+            or a frequency is negative, not finite, not an integer, or too large for a
+            64-bit integer.
         """
         frequencies: IntArray = DataValidator.to_counts(counts, "counts")
         if not self._has_shape(frequencies):
@@ -57,6 +58,7 @@ class CountTest(ABC):
             raise ValueError(
                 f"{type(self).__name__} takes counts of shape {expected} with n >= 2, got {frequencies.shape}"
             )
+        self._require_compatible(frequencies)
         if not np.any(frequencies):
             return HypothesisTestResult(statistic=None)
         # Extreme or degenerate data that validation allows ends as NaN or infinity.
@@ -70,6 +72,11 @@ class CountTest(ABC):
             length >= 2 if expected is None else length == expected
             for length, expected in zip(counts.shape, self.shape, strict=True)
         )
+
+    def _require_compatible(self, counts: IntArray) -> None:
+        # Tests whose options fix part of the shape, such as the number of categories,
+        # override this to raise ValueError.
+        _ = counts
 
     def _is_defined(self, counts: IntArray) -> bool:
         # Tests that are undefined for some data, such as empty categories, override this.

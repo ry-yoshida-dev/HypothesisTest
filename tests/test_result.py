@@ -26,6 +26,12 @@ def test_result_p_value_is_clamped_to_one() -> None:
     assert HypothesisTestResult(statistic=0.0, p_value=1.0000000002).p_value == 1.0
 
 
+@pytest.mark.parametrize("p_value", [-0.1, 1.5, math.inf])
+def test_result_rejects_p_values_outside_the_unit_interval(p_value: float) -> None:
+    with pytest.raises(ValueError, match="p_value"):
+        HypothesisTestResult(statistic=1.0, p_value=p_value)
+
+
 def test_result_degrees_of_freedom_are_floats() -> None:
     result = HypothesisTestResult(statistic=1.0, degrees_of_freedom=(2, 10))
     assert result.degrees_of_freedom == (2.0, 10.0)
