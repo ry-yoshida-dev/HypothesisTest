@@ -4,7 +4,7 @@ import numpy as np
 from numpy.typing import ArrayLike, NDArray
 from scipy import stats
 
-from .types import FloatArray, IntArray
+from .array_types import FloatArray, IntArray
 
 
 class PValueAdjustment(Enum):

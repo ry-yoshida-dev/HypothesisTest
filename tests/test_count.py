@@ -37,7 +37,7 @@ def test_goodness_of_fit_matches_the_pearson_formula() -> None:
 def test_goodness_of_fit_defaults_to_equal_proportions_and_takes_the_g_statistic() -> None:
     observed = np.array(OBSERVED)
     expected: float = observed.sum() / observed.size
-    result = ChiSquareGoodnessOfFit(statistic=DivergenceStatistic.LOG_LIKELIHOOD).run(observed)
+    result = ChiSquareGoodnessOfFit(divergence=DivergenceStatistic.LOG_LIKELIHOOD).run(observed)
     assert result.statistic == pytest.approx(
         2 * float(np.sum(observed * np.log(observed / expected)))
     )

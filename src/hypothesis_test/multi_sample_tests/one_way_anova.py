@@ -4,10 +4,10 @@ from typing import override
 import numpy as np
 from scipy import stats
 
+from ..array_types import FloatArray
 from ..multi_sample_test import MultiSampleTest
 from ..parameter_validator import ParameterValidator
 from ..result import HypothesisTestResult
-from ..types import FloatArray
 
 
 @dataclass(frozen=True)

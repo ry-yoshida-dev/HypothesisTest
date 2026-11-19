@@ -4,12 +4,12 @@ from typing import override
 
 import numpy as np
 
+from ..array_types import FloatArray
 from ..options import Alternative
 from ..parameter_validator import ParameterValidator
 from ..result import HypothesisTestResult
 from ..t_distribution import TDistribution
 from ..two_sample_test import TwoSampleTest
-from ..types import FloatArray
 
 
 @dataclass(frozen=True)

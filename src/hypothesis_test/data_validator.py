@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
-from .types import FloatArray, IntArray
+from .array_types import FloatArray, IntArray
 
 
 class DataValidator:

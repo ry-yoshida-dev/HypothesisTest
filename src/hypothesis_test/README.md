@@ -8,7 +8,7 @@ Hypothesis tests behind one API: an abstract class per shape of data, the concre
 
 | Component | Description |
 |-----------|-------------|
-| [types.py](./types.py) | Type aliases. |
+| [array_types.py](./array_types.py) | Type aliases of the arrays that tests compute on. |
 | [parameter_validator.py](./parameter_validator.py) | `ParameterValidator`, runtime checks of test options. |
 | [data_validator.py](./data_validator.py) | `DataValidator`, the conversion of samples and frequencies into validated arrays. |
 | [options/](./options/README.md) | Enumerations that tests take as options. |

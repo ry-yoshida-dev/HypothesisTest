@@ -3,11 +3,11 @@ from typing import override
 
 from scipy import stats
 
+from ..array_types import IntArray
 from ..count_test import CountTest
 from ..options import McNemarVariant
 from ..parameter_validator import ParameterValidator
 from ..result import HypothesisTestResult
-from ..types import IntArray
 
 
 @dataclass(frozen=True)

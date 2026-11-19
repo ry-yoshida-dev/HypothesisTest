@@ -3,9 +3,9 @@ from typing import override
 
 from scipy import stats
 
+from ..array_types import FloatArray
 from ..result import HypothesisTestResult
 from ..two_sample_test import TwoSampleTest
-from ..types import FloatArray
 
 
 @dataclass(frozen=True)

@@ -3,7 +3,7 @@ from typing import Literal
 
 import numpy as np
 
-from ..types import FloatArray
+from ..array_types import FloatArray
 
 
 class Center(Enum):

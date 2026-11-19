@@ -4,9 +4,9 @@ from typing import ClassVar
 import numpy as np
 from numpy.typing import ArrayLike
 
+from .array_types import FloatArray
 from .data_validator import DataValidator
 from .result import HypothesisTestResult
-from .types import FloatArray
 
 
 class OneSampleTest(ABC):

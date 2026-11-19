@@ -4,11 +4,11 @@ from typing import override
 import numpy as np
 from scipy import stats
 
+from ..array_types import IntArray
 from ..count_test import CountTest
 from ..options import DivergenceStatistic
 from ..parameter_validator import ParameterValidator
 from ..result import HypothesisTestResult
-from ..types import IntArray
 
 
 @dataclass(frozen=True)
@@ -22,20 +22,20 @@ class ChiSquareIndependence(CountTest):
 
     Attributes
     ----------
-    statistic : DivergenceStatistic
+    divergence : DivergenceStatistic
         Statistic that compares observed and expected frequencies.
     is_corrected : bool
         Whether to apply Yates' continuity correction, which only affects 2 x 2
         tables.
     """
 
-    statistic: DivergenceStatistic = DivergenceStatistic.PEARSON
+    divergence: DivergenceStatistic = DivergenceStatistic.PEARSON
     is_corrected: bool = True
 
     shape = (None, None)
 
     def __post_init__(self) -> None:
-        ParameterValidator.require_members(DivergenceStatistic, statistic=self.statistic)
+        ParameterValidator.require_members(DivergenceStatistic, divergence=self.divergence)
         ParameterValidator.require_booleans(is_corrected=self.is_corrected)
 
     @override
@@ -45,6 +45,6 @@ class ChiSquareIndependence(CountTest):
     @override
     def _compute(self, counts: IntArray) -> HypothesisTestResult:
         outcome = stats.chi2_contingency(
-            counts, correction=self.is_corrected, lambda_=self.statistic.option_name
+            counts, correction=self.is_corrected, lambda_=self.divergence.option_name
         )
         return HypothesisTestResult.from_outcome(outcome, degrees_of_freedom=(float(outcome.dof),))

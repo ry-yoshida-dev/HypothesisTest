@@ -5,9 +5,9 @@ from typing import override
 import numpy as np
 from scipy import stats
 
+from ..array_types import FloatArray
 from ..one_sample_test import OneSampleTest
 from ..result import HypothesisTestResult
-from ..types import FloatArray
 
 
 @dataclass(frozen=True)

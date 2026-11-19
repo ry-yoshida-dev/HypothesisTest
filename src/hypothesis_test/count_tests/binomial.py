@@ -3,12 +3,12 @@ from typing import override
 
 from scipy import stats
 
+from ..array_types import IntArray
 from ..confidence_interval import ConfidenceInterval
 from ..count_test import CountTest
 from ..options import Alternative
 from ..parameter_validator import ParameterValidator
 from ..result import HypothesisTestResult
-from ..types import IntArray
 
 
 @dataclass(frozen=True)
