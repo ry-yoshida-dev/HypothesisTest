@@ -16,7 +16,7 @@ HypothesisTest (`hypothesis_test`) is a Python package of statistical hypothesis
 ## Installation
 
 ```bash
-pip install .
+uv add git+https://github.com/ry-yoshida-dev/HypothesisTest
 ```
 
 ## Usage
