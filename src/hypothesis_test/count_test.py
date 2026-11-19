@@ -57,10 +57,12 @@ class CountTest(ABC):
             raise ValueError(
                 f"{type(self).__name__} takes counts of shape {expected} with n >= 2, got {frequencies.shape}"
             )
-        if not np.any(frequencies) or not self._is_defined(frequencies):
+        if not np.any(frequencies):
             return HypothesisTestResult(statistic=None)
-        # Degenerate data that the checks above allow ends as NaN or infinity.
-        with np.errstate(divide="ignore", invalid="ignore"):
+        # Extreme or degenerate data that validation allows ends as NaN or infinity.
+        with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+            if not self._is_defined(frequencies):
+                return HypothesisTestResult(statistic=None)
             return self._compute(frequencies)
 
     def _has_shape(self, counts: IntArray) -> bool:

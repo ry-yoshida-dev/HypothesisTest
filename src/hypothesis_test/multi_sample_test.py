@@ -67,10 +67,12 @@ class MultiSampleTest(ABC):
         sizes: list[int] = [sample.size for sample in validated]
         if self.is_repeated_measures and len(set(sizes)) > 1:
             raise ValueError(f"repeated measures must have the same length, got {sizes}")
-        if min(sizes) < self.min_samples or not self._is_defined(validated):
+        if min(sizes) < self.min_samples:
             return HypothesisTestResult(statistic=None)
-        # Degenerate data that the checks above allow ends as NaN or infinity.
-        with np.errstate(divide="ignore", invalid="ignore"):
+        # Extreme or degenerate data that validation allows ends as NaN or infinity.
+        with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+            if not self._is_defined(validated):
+                return HypothesisTestResult(statistic=None)
             return self._compute(validated)
 
     def run_grouped(self, values: ArrayLike, groups: ArrayLike) -> HypothesisTestResult:

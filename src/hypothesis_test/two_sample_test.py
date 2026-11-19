@@ -51,12 +51,12 @@ class TwoSampleTest(ABC):
         """
         first_values: FloatArray = DataValidator.to_sample(first, "first")
         second_values: FloatArray = DataValidator.to_sample(second, "second")
-        if min(first_values.size, second_values.size) < self.min_samples or not self._is_defined(
-            first_values, second_values
-        ):
+        if min(first_values.size, second_values.size) < self.min_samples:
             return HypothesisTestResult(statistic=None)
-        # Degenerate data that the checks above allow ends as NaN or infinity.
-        with np.errstate(divide="ignore", invalid="ignore"):
+        # Extreme or degenerate data that validation allows ends as NaN or infinity.
+        with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+            if not self._is_defined(first_values, second_values):
+                return HypothesisTestResult(statistic=None)
             return self._compute(first_values, second_values)
 
     def _is_defined(self, first: FloatArray, second: FloatArray) -> bool:

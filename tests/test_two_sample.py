@@ -146,6 +146,17 @@ def test_two_sample_tests_run_without_warnings_on_random_data(test: TwoSampleTes
     assert 0 <= result.p_value <= 1
 
 
+@pytest.mark.parametrize("test", ALL_TESTS)
+def test_two_sample_tests_run_without_warnings_on_extreme_values(test: TwoSampleTest) -> None:
+    test.run([1e308, -1e308, 5e307], [0.0, 1.0, 2.0])
+
+
+@pytest.mark.parametrize("is_variance_equal", [True, False])
+def test_two_sample_t_is_undefined_when_the_variance_overflows(is_variance_equal: bool) -> None:
+    result = TwoSampleT(is_variance_equal=is_variance_equal).run([1e308, -1e308, 5e307], [0.0, 1.0])
+    assert result == UNDEFINED
+
+
 def test_two_sample_tests_reject_invalid_samples_by_name() -> None:
     with pytest.raises(ValueError, match="second must be finite"):
         MannWhitneyU().run(FIRST, [1.0, math.nan])

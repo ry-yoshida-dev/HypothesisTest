@@ -1,3 +1,4 @@
+import warnings
 from dataclasses import dataclass
 from typing import override
 
@@ -16,6 +17,8 @@ class ShapiroWilk(OneSampleTest):
 
     Among the most powerful normality tests for small and moderate samples. The
     statistic W is at most 1, with smaller values showing departure from normality.
+    The p-value comes from an approximation that loses accuracy above 5000
+    observations, where `DAgostinoPearson` or `JarqueBera` suit better.
     """
 
     min_samples = 3
@@ -26,4 +29,9 @@ class ShapiroWilk(OneSampleTest):
 
     @override
     def _compute(self, sample: FloatArray) -> HypothesisTestResult:
-        return HypothesisTestResult.from_outcome(stats.shapiro(sample))
+        with warnings.catch_warnings():
+            # The docstring states the loss of accuracy that SciPy warns about.
+            warnings.filterwarnings(
+                "ignore", message="scipy.stats.shapiro: For N > 5000", category=UserWarning
+            )
+            return HypothesisTestResult.from_outcome(stats.shapiro(sample))

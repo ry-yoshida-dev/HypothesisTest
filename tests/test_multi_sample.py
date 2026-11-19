@@ -183,6 +183,11 @@ def test_multi_sample_tests_run_without_warnings_on_random_data(test: MultiSampl
     assert 0 <= result.p_value <= 1
 
 
+@pytest.mark.parametrize("test", ALL_TESTS)
+def test_multi_sample_tests_run_without_warnings_on_extreme_values(test: MultiSampleTest) -> None:
+    test.run([1e308, -1e308, 5e307], [0.0, 1.0, 2.0], [3.0, 4.0, 6.0])
+
+
 def test_multi_sample_tests_are_undefined_for_too_few_observations() -> None:
     assert OneWayAnova().run([1.0], GROUP_A) == UNDEFINED
 

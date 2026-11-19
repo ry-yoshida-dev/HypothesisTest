@@ -148,6 +148,20 @@ def test_one_sample_tests_run_without_warnings_on_random_data(test: OneSampleTes
     assert 0 <= result.p_value <= 1
 
 
+def test_shapiro_wilk_runs_without_warnings_on_large_samples() -> None:
+    sample = np.random.default_rng(0).normal(size=6000)
+    assert ShapiroWilk().run(sample).p_value is not None
+
+
+@pytest.mark.parametrize("test", ALL_TESTS)
+def test_one_sample_tests_run_without_warnings_on_extreme_values(test: OneSampleTest) -> None:
+    test.run(np.r_[1e308, -1e308, 5e307, np.zeros(20)])
+
+
+def test_one_sample_t_is_undefined_when_the_variance_overflows() -> None:
+    assert OneSampleT().run([1e308, -1e308, 5e307]) == UNDEFINED
+
+
 @pytest.mark.parametrize(
     ("sample", "error", "match"),
     [

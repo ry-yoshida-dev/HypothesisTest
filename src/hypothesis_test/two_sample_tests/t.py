@@ -72,6 +72,9 @@ class TwoSampleT(TwoSampleTest):
             degrees_of_freedom = standard_error**4 / (
                 first_share**2 / (first_size - 1) + second_share**2 / (second_size - 1)
             )
+        if not (math.isfinite(standard_error) and math.isfinite(degrees_of_freedom)):
+            # The variances of extreme values overflow, leaving no reference distribution.
+            return HypothesisTestResult(statistic=None)
         difference: float = float(np.mean(first)) - float(np.mean(second))
         statistic: float = (difference - self.mean_difference) / standard_error
         distribution: TDistribution = TDistribution(degrees_of_freedom)

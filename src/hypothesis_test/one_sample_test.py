@@ -82,10 +82,12 @@ class OneSampleTest(ABC):
         return self._run_validated(first_values - second_values)
 
     def _run_validated(self, sample: FloatArray) -> HypothesisTestResult:
-        if sample.size < self.min_samples or not self._is_defined(sample):
+        if sample.size < self.min_samples:
             return HypothesisTestResult(statistic=None)
-        # Degenerate data that the checks above allow ends as NaN or infinity.
-        with np.errstate(divide="ignore", invalid="ignore"):
+        # Extreme or degenerate data that validation allows ends as NaN or infinity.
+        with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+            if not self._is_defined(sample):
+                return HypothesisTestResult(statistic=None)
             return self._compute(sample)
 
     def _is_defined(self, sample: FloatArray) -> bool:

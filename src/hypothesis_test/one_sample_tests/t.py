@@ -48,6 +48,9 @@ class OneSampleT(OneSampleTest):
     def _compute(self, sample: FloatArray) -> HypothesisTestResult:
         mean: float = float(np.mean(sample))
         standard_error: float = float(np.std(sample, ddof=1)) / math.sqrt(sample.size)
+        if not math.isfinite(standard_error):
+            # The variance of extreme values overflows, leaving no reference distribution.
+            return HypothesisTestResult(statistic=None)
         distribution: TDistribution = TDistribution(sample.size - 1)
         statistic: float = (mean - self.population_mean) / standard_error
         return HypothesisTestResult(
