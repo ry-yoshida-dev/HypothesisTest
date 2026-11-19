@@ -101,10 +101,39 @@ def test_run_grouped_orders_samples_by_label() -> None:
     )
 
 
-def test_run_grouped_keeps_the_blocks_of_repeated_measures() -> None:
+def test_run_grouped_pairs_repeated_measures_by_subject() -> None:
     blocks = np.array([[1.0, 2.0, 3.0], [2.0, 1.0, 3.0], [1.0, 3.0, 2.0], [1.0, 2.0, 3.5]])
     labels = np.tile(["x", "y", "z"], blocks.shape[0])
-    assert Friedman().run_grouped(blocks.ravel(), labels) == Friedman().run(*blocks.T)
+    subjects = np.repeat([4, 3, 2, 1], blocks.shape[1])
+    order = np.random.default_rng(0).permutation(blocks.size)
+    result = Friedman().run_grouped(blocks.ravel()[order], labels[order], subjects[order])
+    assert result == Friedman().run(*blocks[::-1].T)
+
+
+def test_run_grouped_requires_subjects_only_for_repeated_measures() -> None:
+    with pytest.raises(ValueError, match="requires subjects"):
+        Friedman().run_grouped([1.0, 2.0, 3.0], ["x", "y", "z"])
+    with pytest.raises(ValueError, match="takes no subjects"):
+        KruskalWallis().run_grouped([1.0, 2.0], ["a", "b"], [1, 1])
+
+
+@pytest.mark.parametrize(
+    ("groups", "subjects"),
+    [
+        (["x", "y", "z", "x", "y"], [1, 1, 1, 2, 2]),  # Subject 2 misses group z.
+        (["x", "y", "z", "x", "x", "y"], [1, 1, 1, 1, 2, 2]),  # Subject 1 is twice in x.
+    ],
+)
+def test_run_grouped_rejects_incomplete_repeated_measures(
+    groups: list[str], subjects: list[int]
+) -> None:
+    with pytest.raises(ValueError, match="exactly one observation"):
+        Friedman().run_grouped(np.arange(len(subjects), dtype=float), groups, subjects)
+
+
+def test_run_grouped_rejects_misaligned_subjects() -> None:
+    with pytest.raises(ValueError, match="subjects must have the shape"):
+        Friedman().run_grouped([1.0, 2.0, 3.0], ["x", "y", "z"], [1, 1])
 
 
 def test_run_grouped_rejects_misaligned_labels() -> None:

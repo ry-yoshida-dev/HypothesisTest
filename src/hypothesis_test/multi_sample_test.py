@@ -75,7 +75,9 @@ class MultiSampleTest(ABC):
                 return HypothesisTestResult(statistic=None)
             return self._compute(validated)
 
-    def run_grouped(self, values: ArrayLike, groups: ArrayLike) -> HypothesisTestResult:
+    def run_grouped(
+        self, values: ArrayLike, groups: ArrayLike, subjects: ArrayLike | None = None
+    ) -> HypothesisTestResult:
         """
         Run the test on observations labeled by their sample, as in a long-format table.
 
@@ -85,8 +87,11 @@ class MultiSampleTest(ABC):
             The one-dimensional observations of all samples.
         groups : ArrayLike
             The sample label of each observation, aligned with values. Samples are
-            ordered by sorted label, and observations keep their order within a
-            sample, which aligns the blocks of repeated measures.
+            ordered by sorted label.
+        subjects : ArrayLike | None
+            The subject label of each observation, aligned with values, which pairs the
+            measurements of each subject across samples whatever the row order. Required
+            when `is_repeated_measures` is True, and None otherwise.
 
         Returns
         -------
@@ -98,19 +103,42 @@ class MultiSampleTest(ABC):
         TypeError
             If the observations are not numeric, or the labels cannot be sorted.
         ValueError
-            If the observations are invalid as for `run`, or the labels are not
-            one-dimensional or not aligned with the observations.
+            If the observations are invalid as for `run`; the labels are not aligned
+            with the observations; subjects are missing for repeated measures or given
+            for independent samples; or a subject does not have exactly one
+            observation in each sample.
         """
         observations: FloatArray = DataValidator.to_sample(values, "values")
-        labels: NDArray[np.generic] = np.asarray(groups)
-        if labels.shape != observations.shape:
-            raise ValueError(
-                f"groups must have the shape of values {observations.shape}, got {labels.shape}"
+        group_codes: IntArray = self._label_codes(groups, "groups", observations.shape)
+        name: str = type(self).__name__
+        order: IntArray
+        if not self.is_repeated_measures:
+            if subjects is not None:
+                raise ValueError(f"{name} compares independent samples, so it takes no subjects")
+            order = np.argsort(group_codes, kind="stable")
+        else:
+            if subjects is None:
+                raise ValueError(f"{name} compares repeated measures, so it requires subjects")
+            subject_codes: IntArray = self._label_codes(subjects, "subjects", observations.shape)
+            num_groups: int = int(group_codes.max()) + 1
+            num_subjects: int = int(subject_codes.max()) + 1
+            cell_sizes: IntArray = np.bincount(
+                group_codes * num_subjects + subject_codes, minlength=num_groups * num_subjects
             )
-        codes: IntArray = np.unique(labels, return_inverse=True)[1].astype(np.int64)
-        order: IntArray = np.argsort(codes, kind="stable")
-        boundaries: IntArray = np.cumsum(np.bincount(codes))[:-1]
+            if np.any(cell_sizes != 1):
+                raise ValueError("each subject must have exactly one observation in each group")
+            # Sorting by subject within each group aligns the i-th observations.
+            order = np.lexsort((subject_codes, group_codes))
+        boundaries: IntArray = np.cumsum(np.bincount(group_codes))[:-1]
         return self.run(*np.split(observations[order], boundaries))
+
+    @staticmethod
+    def _label_codes(labels: ArrayLike, name: str, shape: tuple[int, ...]) -> IntArray:
+        array: NDArray[np.generic] = np.asarray(labels)
+        if array.shape != shape:
+            raise ValueError(f"{name} must have the shape of values {shape}, got {array.shape}")
+        codes: IntArray = np.unique(array, return_inverse=True)[1].astype(np.int64)
+        return codes
 
     def _is_defined(self, samples: list[FloatArray]) -> bool:
         # Tests that are undefined for some data, such as constant samples, override this.

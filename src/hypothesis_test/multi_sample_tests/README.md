@@ -19,8 +19,9 @@ Concrete `MultiSampleTest`s: tests that compare the location or the spread of se
 ## Examples
 
 ```python
-from hypothesis_test import KruskalWallis, OneWayAnova
+from hypothesis_test import Friedman, KruskalWallis, OneWayAnova
 
 print(OneWayAnova().run(group_a, group_b, group_c).p_value)
 print(KruskalWallis().run_grouped(table["score"], table["group"]).p_value)
+print(Friedman().run_grouped(table["score"], table["time"], table["subject"]).p_value)
 ```
