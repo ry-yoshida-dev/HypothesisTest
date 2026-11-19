@@ -15,9 +15,10 @@ class OneWayAnova(MultiSampleTest):
     """
     One-way analysis of variance of whether several population means are equal.
 
-    Assumes normally distributed observations. Fisher's F-test assumes equal
-    variances, and Welch's F-test does not. Undefined when every sample is constant,
-    and for Welch's test when any sample is.
+    Welch's F-test by default, which stays valid when the variances differ, as
+    `TwoSampleT` does; Fisher's F-test pools the variances instead. Both assume
+    normally distributed observations. Undefined when any sample is constant, and
+    for Fisher's test when every sample is.
 
     Attributes
     ----------
@@ -25,7 +26,7 @@ class OneWayAnova(MultiSampleTest):
         Whether to assume equal variances and run Fisher's F-test instead of Welch's.
     """
 
-    is_variance_equal: bool = True
+    is_variance_equal: bool = False
 
     def __post_init__(self) -> None:
         ParameterValidator.require_booleans(is_variance_equal=self.is_variance_equal)

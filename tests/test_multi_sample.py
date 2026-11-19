@@ -23,7 +23,7 @@ UNDEFINED = HypothesisTestResult(statistic=None)
 
 ALL_TESTS: list[MultiSampleTest] = [
     OneWayAnova(),
-    OneWayAnova(is_variance_equal=False),
+    OneWayAnova(is_variance_equal=True),
     AlexanderGovern(),
     KruskalWallis(),
     Friedman(),
@@ -38,9 +38,13 @@ def test_one_way_anova_matches_the_formula() -> None:
     pooled = np.concatenate(groups)
     between: float = sum(g.size * (np.mean(g) - np.mean(pooled)) ** 2 for g in groups) / 2
     within: float = sum(np.sum((g - np.mean(g)) ** 2) for g in groups) / (pooled.size - 3)
-    result = OneWayAnova().run(*groups)
+    result = OneWayAnova(is_variance_equal=True).run(*groups)
     assert result.statistic == pytest.approx(between / within)
     assert result.degrees_of_freedom == (2.0, pooled.size - 3.0)
+
+
+def test_one_way_anova_defaults_to_welch_like_the_two_sample_t_test() -> None:
+    assert OneWayAnova().is_variance_equal is TwoSampleT().is_variance_equal is False
 
 
 @pytest.mark.parametrize("is_variance_equal", [True, False])
@@ -54,15 +58,15 @@ def test_one_way_anova_of_two_groups_is_the_squared_t_test(is_variance_equal: bo
 
 
 def test_one_way_anova_welch_matches_scipy() -> None:
-    result = OneWayAnova(is_variance_equal=False).run(GROUP_A, GROUP_B, GROUP_C)
+    result = OneWayAnova().run(GROUP_A, GROUP_B, GROUP_C)
     reference = stats.f_oneway(GROUP_A, GROUP_B, GROUP_C, equal_var=False)
     assert result.statistic == pytest.approx(float(reference.statistic))
     assert result.p_value == pytest.approx(float(reference.pvalue))
 
 
 def test_one_way_anova_welch_is_undefined_with_a_constant_group() -> None:
-    assert OneWayAnova(is_variance_equal=False).run([1.0, 1.0], GROUP_B) == UNDEFINED
-    assert OneWayAnova().run([1.0, 1.0], GROUP_B).statistic is not None
+    assert OneWayAnova().run([1.0, 1.0], GROUP_B) == UNDEFINED
+    assert OneWayAnova(is_variance_equal=True).run([1.0, 1.0], GROUP_B).statistic is not None
 
 
 def test_alexander_govern_matches_scipy() -> None:
@@ -91,7 +95,8 @@ def test_run_grouped_orders_samples_by_label() -> None:
     order = np.random.default_rng(0).permutation(len(values))
     shuffled_values = np.array(values)[order]
     shuffled_labels = np.array(labels)[order]
-    assert OneWayAnova().run_grouped(shuffled_values, shuffled_labels) == OneWayAnova().run(
+    anova = OneWayAnova(is_variance_equal=True)
+    assert anova.run_grouped(shuffled_values, shuffled_labels) == anova.run(
         GROUP_A, GROUP_B, GROUP_C
     )
 
@@ -133,7 +138,7 @@ def test_levene_is_the_anova_of_absolute_deviations(center: Center) -> None:
         np.abs(g - (np.mean(g) if center is Center.MEAN else np.median(g))) for g in groups
     ]
     result = Levene(center=center).run(*groups)
-    reference = OneWayAnova().run(*deviations)
+    reference = OneWayAnova(is_variance_equal=True).run(*deviations)
     assert result.statistic == pytest.approx(reference.statistic)
     assert result.p_value == pytest.approx(reference.p_value)
     assert result.degrees_of_freedom == reference.degrees_of_freedom
