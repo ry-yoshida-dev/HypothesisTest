@@ -1,6 +1,10 @@
 from enum import Enum
 from typing import Literal
 
+import numpy as np
+
+from ..types import FloatArray
+
 
 class Center(Enum):
     """
@@ -34,3 +38,23 @@ class Center(Enum):
                 return "mean"
             case Center.MEDIAN:
                 return "median"
+
+    def locate(self, sample: FloatArray) -> float:
+        """
+        Get the center of a sample.
+
+        Parameters
+        ----------
+        sample : FloatArray
+            The observations.
+
+        Returns
+        -------
+        float
+            The mean or the median of the observations.
+        """
+        match self:
+            case Center.MEAN:
+                return float(np.mean(sample))
+            case Center.MEDIAN:
+                return float(np.median(sample))

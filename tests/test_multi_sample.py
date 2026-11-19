@@ -139,6 +139,13 @@ def test_levene_is_the_anova_of_absolute_deviations(center: Center) -> None:
     assert result.degrees_of_freedom == reference.degrees_of_freedom
 
 
+@pytest.mark.parametrize("center", list(Center))
+def test_levene_is_undefined_when_deviations_do_not_vary(center: Center) -> None:
+    # Two observations always lie at the same distance from their center.
+    assert Levene(center=center).run([1.0, 3.0], [2.0, 6.0]) == UNDEFINED
+    assert Levene(center=center).run([1.0, 3.0], [2.0, 6.0, 7.0]).statistic is not None
+
+
 def test_equal_variance_tests_detect_unequal_spread() -> None:
     rng = np.random.default_rng(0)
     narrow = rng.normal(0, 1, size=60)
