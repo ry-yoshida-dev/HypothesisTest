@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=77.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hypothesis-test"
+version = "0.0.1"
+authors = [
+  { name = "Ryuto Yoshida" },
+]
+description = "Statistical hypothesis tests behind one API, grouped by the shape of their data and backed by SciPy."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy>=2.2",
+    "scipy>=1.16",
+]
+
+[project.urls]
+Homepage = "https://github.com/ry-yoshida-dev/HypothesisTest"
+"Bug Tracker" = "https://github.com/ry-yoshida-dev/HypothesisTest/issues"
+
+[tool.uv]
+exclude-newer = "7 days"
+
+[dependency-groups]
+dev = [
+    "basedpyright>=1.40.2",
+    "mypy>=2.4.1",
+    "pytest>=9.2.0",
+    "ruff>=0.17.3",
+    "scipy-stubs>=1.16",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+hypothesis_test = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["error"]
+
+[tool.mypy]
+files = ["src", "tests"]
+strict = true
+
+[tool.basedpyright]
+include = ["src", "tests"]
+typeCheckingMode = "strict"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "ISC001", "ISC002", "D"]
+# Only public classes, methods, and functions need docstrings, and multi-line ones are the local style.
+ignore = ["E501", "D100", "D104", "D105", "D200", "D212"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D"]
