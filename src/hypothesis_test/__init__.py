@@ -7,6 +7,7 @@ from .count_tests import (
     FisherExact,
     McNemar,
 )
+from .monte_carlo_p_value import MonteCarloPValue
 from .multi_sample_test import MultiSampleTest
 from .multi_sample_tests import (
     AlexanderGovern,
@@ -17,6 +18,7 @@ from .multi_sample_tests import (
     Levene,
     OneWayAnova,
 )
+from .normal_distribution import NormalDistribution
 from .one_sample_test import OneSampleTest
 from .one_sample_tests import (
     DAgostinoPearson,
@@ -63,7 +65,9 @@ __all__ = [
     "MannWhitneyU",
     "McNemar",
     "McNemarVariant",
+    "MonteCarloPValue",
     "MultiSampleTest",
+    "NormalDistribution",
     "OneSampleT",
     "OneSampleTest",
     "OneWayAnova",

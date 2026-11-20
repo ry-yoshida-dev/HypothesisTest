@@ -11,7 +11,7 @@ HypothesisTest (`hypothesis_test`) is a Python package of statistical hypothesis
 | [Multiple samples](src/hypothesis_test/multi_sample_tests/README.md) | Several samples, or repeated measures of the same subjects | `OneWayAnova`, `AlexanderGovern`, `KruskalWallis`, `Friedman`, `Levene`, `Bartlett`, `FlignerKilleen` |
 | [Counts](src/hypothesis_test/count_tests/README.md) | Frequencies of categories or contingency tables | `ChiSquareGoodnessOfFit`, `ChiSquareIndependence`, `FisherExact`, `McNemar`, `Binomial` |
 
-`PValueAdjustment` corrects the p-values of several tests for multiple comparisons by the Bonferroni, Holm, Benjamini-Hochberg, or Benjamini-Yekutieli method.
+`PValueAdjustment` corrects the p-values of several tests for multiple comparisons by the Bonferroni, Holm, Benjamini-Hochberg, or Benjamini-Yekutieli method. `NormalDistribution` gives the p-values of z statistics, and `MonteCarloPValue` those of statistics against statistics simulated under the null hypothesis, as in permutation tests.
 
 ## Installation
 
